@@ -9,7 +9,7 @@
 // states, and it claims nothing about behaviour. Behaviour is what the host test beside it is for,
 // and that runs in a second instead of a minute.
 
-#include <ramen/ramen.hpp>
+#include <ramen.hpp>
 
 #if __cplusplus < 202002L
 #error "ramen requires C++20: set the standard in the project's CMakeLists.txt"

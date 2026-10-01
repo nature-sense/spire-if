@@ -28,6 +28,7 @@ enable_testing()
 add_executable(actors_test
     actors_test.cpp
     freertos_fake.cpp
+    message_tag_probe.cpp
     ../src/scheduler.cpp
     ../../toolkit/src/task.cpp
 )

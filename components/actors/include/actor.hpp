@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <actors/actor_ref.hpp>
+#include <actor_ref.hpp>
 
 namespace spire {
 

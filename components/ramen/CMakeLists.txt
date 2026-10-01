@@ -8,7 +8,7 @@
 # sha256:    f7c6b0362173ab40b7ee7b5c77c1bd328f6a3019d51489662cf6301039a8565a
 # Licence:   MIT — inherited by every library scaffolded from this template.
 #
-# The whole of `include/ramen/` is upstream's, byte for byte, and is **upgraded by replacing it**.
+# The whole of `include/ramen.hpp` is upstream's, byte for byte, and is **upgraded by replacing it**.
 # Do not edit it: an edit here is an edit to a third-party project, with nobody to upstream it to and
 # nothing to carry it forward. Change the template instead, and say why.
 #

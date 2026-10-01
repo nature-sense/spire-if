@@ -9,7 +9,7 @@
 #include <memory>
 #include <utility>
 
-#include <actors/mailbox.hpp>
+#include <mailbox.hpp>
 
 namespace spire {
 
@@ -50,6 +50,9 @@ public:
 
 private:
     friend class Scheduler;
+    // `Registry::get` resolves a *name* to the mailbox it indexed and hands back a ref the same way
+    // `Scheduler::spawn` does, so it needs the same door.
+    friend class Registry;
     explicit ActorRef(std::shared_ptr<Mailbox> mailbox) : mailbox_(std::move(mailbox)) {}
 
     std::shared_ptr<Mailbox> mailbox_{};

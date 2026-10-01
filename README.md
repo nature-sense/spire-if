@@ -17,7 +17,8 @@ main/                 the BUILD HARNESS, not an application: it exists so `idf.p
 components/           the product: the framework, and everything added to it
   toolkit/            spire::Task — the task seam both frameworks stand on
   ramen/              the dataflow framework (upstream Zubax/ramen, MIT) and its host test
-  actors/             the classical actor framework: a scheduler, typed refs, on_message
+  actors/             the classical actor framework: a scheduler, typed refs, on_message, and a name
+                      registry (`*scheduler.registry()`) for a peer you were not handed a ref to
                       — and a host test that runs it, on real threads, against a fake FreeRTOS
 SPIRE.md              HOW THIS LIBRARY IS MEANT TO BE USED — the architecture lives here
 ```

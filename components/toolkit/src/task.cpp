@@ -8,7 +8,7 @@
 // deletes the task, why the flag is atomic) are argued in the header beside the declarations a
 // caller reads.
 
-#include <toolkit/task.hpp>
+#include <task.hpp>
 
 namespace spire {
 

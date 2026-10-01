@@ -16,7 +16,7 @@
 // It is written with plain asserts and prints one line per failure, like every other host test in
 // this library: no framework, nothing to install, and the same result on this machine and on a chip.
 
-#include <ramen/ramen.hpp>
+#include <ramen.hpp>
 
 #include <cstdio>
 #include <vector>

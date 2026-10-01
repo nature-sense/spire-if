@@ -9,9 +9,9 @@
 // everything that actually touches the platform is in this file, and the header next door is the
 // interface an application reads.
 
-#include <actors/scheduler.hpp>
+#include <scheduler.hpp>
 
-#include <toolkit/task.hpp>
+#include <task.hpp>
 
 #include <string>
 #include <utility>
@@ -184,6 +184,9 @@ private:
 };
 
 Scheduler::Scheduler() = default;
+
+Scheduler::Scheduler(std::shared_ptr<Registry> registry)
+    : registry_(registry != nullptr ? std::move(registry) : Registry::create()) {}
 
 Scheduler::~Scheduler() { stop(); }
 

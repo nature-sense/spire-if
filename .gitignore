@@ -1,3 +1,9 @@
 
 # Spire project-local state
 .spire/
+
+# macOS
+.DS_Store
+
+# CMake test build output
+components/*/test/build/
