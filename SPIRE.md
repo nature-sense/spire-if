@@ -92,7 +92,14 @@
 
 **Components** — the payload. Add lines here as they arrive:
 
-<!-- One line per component: what it is, and what it is for. -->
+- **`sht20`**, **`sps30`** — I²C **sensor** drivers (temperature and humidity; particulate matter). One
+  device, one bus, and a host test each that runs the protocol against a fake bus.
+- **`rolling_average`** — a scalar-averaging **algorithm**. No device, no bus, no board.
+- **`st7789`** — an SPI **display controller** driver (a colour LCD panel): the power-on sequence, the
+  addressing window, and `flush()`. The panel's facts — size, colour order, init commands — live here;
+  the board's — the reset line, the data/command line, the clock — do not.
+- **`ft6336`** — an I²C **touch controller** driver (a capacitive panel): presence, and the point being
+  touched. Read with `bus_write_read`, like any register.
 
 ## Choosing a framework
 
@@ -150,6 +157,10 @@ never reports.
 - **C++20**, because `ramen` does not compile without it. Nothing needs adding for a chip build —
   ESP-IDF compiles C++ at `-std=gnu++2b` for chip targets — but anything built **outside** IDF (a host
   test, a host tool) has to set it itself.
+- **LVGL**, for a display. It is **third-party and vendored**, pinned to one version rather than fetched
+  from a registry at configure time — a build that reaches the network for a dependency is a build that
+  fails on a bench with no wifi. LVGL cannot set its own configuration: it needs an `lv_conf.h` on the
+  include path, which the vendoring wrapper (`components/lvgl/`) carries.
 - Anything else this library needs that no component can state: a config symbol, a compiler flag, a
   partition-table entry. Say it here, because nothing else in the tree carries it.
 
@@ -161,5 +172,8 @@ never reports.
   they start in, and what is wired to what — and every *name* those actors are spawned under. The
   `actors` framework's registry is only the index the scheduler keeps of what it spawned, so a peer
   that cannot be handed a ref can still be found; it is not a place to keep or look up components.
-- **Devices and boards.** A driver is its own component and a board support package belongs to the
-  *application* — this library stays off the shelf.
+- **Devices and boards.** A **device driver** is a component: one chip, board-neutral, testable on a
+  host. A **board** is a composition — pins, bus, addresses, and the wiring between chips — and a
+  composition belongs to the application that names the board. So this library ships drivers and seams
+  and stays off the shelf; a board support package is never one of its components, and the application
+  that owns the board is the one that writes its BSP.

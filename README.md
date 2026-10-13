@@ -4,8 +4,9 @@ An **ESP-IDF component library**: a project whose product is `components/*`.
 
 It starts with a **framework** — three components that are already here — and then grows. The tool
 that made this project has no opinion about what belongs *beyond* that: a driver, an algorithm, a
-board's support package are all decided later, and one at a time. `SPIRE.md` is where those decisions
-are written down.
+device — each is decided later, and one at a time. A **board** is not one of them: a board is a
+composition, and a composition belongs to the application that names the board, never to the library.
+`SPIRE.md` is where those decisions are written down.
 
 ## Layout
 
