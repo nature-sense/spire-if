@@ -100,6 +100,14 @@
   the board's — the reset line, the data/command line, the clock — do not.
 - **`ft6336`** — an I²C **touch controller** driver (a capacitive panel): presence, and the point being
   touched. Read with `bus_write_read`, like any register.
+- **`lvgl_display`** — the LVGL **surface** for a panel driver: one `lv_display`, the draw buffer LVGL
+  renders into, the `flush_cb` that hands each changed rectangle to a **pixel sink**, and the tick. It
+  owns no task — `render()` is one `lv_timer_handler()` pass — and names no device: `sink_of(panel)`
+  builds the sink from any driver whose `flush()` has the panel's signature (`st7789`'s), so *which*
+  panel LVGL draws on stays the application's decision, where the board facts are. It is the one
+  component here with **no host test**: LVGL is vendored for the chip and compiled by this project's
+  build, so `idf.py build` is the test — it compiles the bridge, and the **link** is proven where the
+  bridge is used, an application that makes a `Display`.
 
 ## Choosing a framework
 
@@ -138,6 +146,34 @@ share one message. `main/` is then what is left: the spawns, the wiring and the 
 stage** is not a component of its own — the chain is one task and its stages are inline — so the stages
 live with the wiring. A component, either way, carries no mailbox and no task: an actor wraps it.
 
+**A display is wiring, and the panel is the application's.** LVGL draws into memory, not at a panel:
+`lvgl_display::Display` owns the `lv_display`, the draw buffer and the flush callback, and reaches the
+panel through a **sink** — `lvgl_display::sink_of(panel)`, built in the application from the driver it
+constructed. That is the whole of the composition, and it is why `lvgl_display` never names `st7789`:
+
+```cpp
+st7789::St7789 panel{bus_device};      // the application's SPI device: its pins, its DC line, its clock
+panel.init();                          // the panel first — the first flush goes into it
+lvgl_display::Display display{lvgl_display::sink_of(panel), st7789::St7789::kWidth,
+                              st7789::St7789::kHeight};
+display.init();                        // lv_init, the tick, the buffer, the flush_cb
+```
+
+Nothing else is LVGL's to hold: `render()` is pumped by whichever loop the application gives a screen
+(an actor of its own, usually), `handle()` is there for what that loop needs from the `lv_display` — the
+active screen, a theme, or the `lv_indev` built over `ft6336` — and a touch panel is that same shape one
+level down.
+
+**This library's build compiles the bridge; an application's build links it.** Nothing in `main/` here
+makes a `Display`, so `idf.py build` type-checks and compiles the component but never pulls it — or LVGL
+behind it — out of its archive. An application that makes one is what proves the link, and the proof is
+two symbols or none:
+
+```sh
+# in an application that makes a Display; both arrive together, or the link failed
+xtensa-esp32s3-elf-nm -C build/*.elf | grep -E ' T (lv_init|lvgl_display::Display)'
+```
+
 **The lifecycle is the same in both frameworks**, so an application reads the same either way:
 
 ```
@@ -160,7 +196,10 @@ never reports.
 - **LVGL**, for a display. It is **third-party and vendored**, pinned to one version rather than fetched
   from a registry at configure time — a build that reaches the network for a dependency is a build that
   fails on a bench with no wifi. LVGL cannot set its own configuration: it needs an `lv_conf.h` on the
-  include path, which the vendoring wrapper (`components/lvgl/`) carries.
+  include path, which the vendoring wrapper (`components/lvgl/`) carries. **`lvgl_display` is what turns
+  that dependency into a screen**: it owns the `lv_display`, the buffer and the `flush_cb`, and takes the
+  panel as a sink. So a product that wants one requires `lvgl_display` — whose own `REQUIRES lvgl` brings
+  LVGL's headers with it — and the panel driver, which the product names itself.
 - Anything else this library needs that no component can state: a config symbol, a compiler flag, a
   partition-table entry. Say it here, because nothing else in the tree carries it.
 

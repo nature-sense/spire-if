@@ -3,6 +3,10 @@
 LVGL is the display library the applications draw their screens with. This component adds nothing to
 it: it **pins** it, and it is where the library's LVGL configuration lives.
 
+**The component that turns it into a screen is `lvgl_display`** — the `lv_display`, the draw buffer and
+the `flush_cb`, over a panel driver the application hands it. This one is only the vendoring: nothing
+here calls LVGL, so a product requires `lvgl_display` and never this.
+
 ## Why pinned, not fetched
 
 A component fetched from a registry at configure time is a component whose build needs the network. On
