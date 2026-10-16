@@ -94,6 +94,14 @@
 
 - **`sht20`**, **`sps30`** — I²C **sensor** drivers (temperature and humidity; particulate matter). One
   device, one bus, and a host test each that runs the protocol against a fake bus.
+- **`bmi270`** — an I²C **inertial measurement unit** driver (a six-axis accelerometer and gyroscope,
+  and the part's own die temperature): presence by its chip ID, and one `read` of all six axes in the
+  units the datasheet's conversions give. It **reads and does not configure**, like the PMIC beside it —
+  and it goes one step past assuming, because the full scale is a *setting*: `read` asks the part for its
+  ranges rather than trusting the reset default, so a board that chose ±16 g reads in g instead of in a
+  number wrong by eight. Bringing the part up — its power mode, its ranges, and Bosch's configuration
+  file — is the board's, so a part that was never brought up answers `probe` and reads *still*: a
+  reading that is real and unmoving, which is the caller's to tell from a device that is still.
 - **`rolling_average`** — a scalar-averaging **algorithm**. No device, no bus, no board.
 - **`st7789`** — an SPI **display controller** driver (a colour LCD panel): the power-on sequence, the
   addressing window, and `flush()`. The panel's facts — size, colour order, init commands — live here;
