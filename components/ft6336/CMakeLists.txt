@@ -5,7 +5,7 @@
 #
 # REQUIRES names the IDF driver this device speaks through, and nothing else. A protocol driver knows
 # its bus and its datasheet; it knows nothing about a board, an actor, or a product. The *panel's*
-# facts — its coordinate range — live here; the *board's* — the interrupt line, the reset line, the bus
+# facts — its grid — live here; the *board's* — the interrupt line, the reset line, the bus
 # it hangs off — do not.
 
 # What this component **is**, stated rather than guessed. The same rule the project follows with
