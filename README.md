@@ -53,7 +53,12 @@ A component is **framework-agnostic**: it holds a device or an algorithm, and it
 board, no `Task` and no framework. The actor — the few lines that give a component ports or a mailbox
 and own its loop — belongs to the application, because it names the product.
 
+A component that has just **arrived** is a directory CMake has never seen. The component list is
+resolved when CMake configures, so `idf.py build` on its own reports success — *without having
+compiled it*. The build that adds a component is a re-configure:
+
 ```sh
+idf.py reconfigure                   # re-resolve components/ — a new one is invisible until this
 idf.py set-target esp32s3 build      # compile-checks every component
 ```
 
