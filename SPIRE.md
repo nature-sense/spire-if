@@ -94,6 +94,11 @@
 
 - **`sht20`**, **`sps30`** — I²C **sensor** drivers (temperature and humidity; particulate matter). One
   device, one bus, and a host test each that runs the protocol against a fake bus.
+- **`bm8563`** — an I²C **real-time clock** driver (a battery-backed wall clock: the PCF8563-compatible
+  part). It reads the calendar and — unlike the sensors — also **writes** it, so its seam carries the
+  write form and its fake can refuse one. `now()` reads **false** when the part's voltage-low flag is
+  set, which is the part saying its count is wrong: a time that cannot be trusted is not a time, and it
+  is the caller's cue to set the clock from a source it does trust.
 - **`bmi270`** — an I²C **inertial measurement unit** driver (a six-axis accelerometer and gyroscope,
   and the part's own die temperature): presence by its chip ID, and one `read` of all six axes in the
   units the datasheet's conversions give. It **reads and does not configure**, like the PMIC beside it —
