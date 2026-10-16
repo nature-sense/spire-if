@@ -98,6 +98,13 @@
 - **`st7789`** — an SPI **display controller** driver (a colour LCD panel): the power-on sequence, the
   addressing window, and `flush()`. The panel's facts — size, colour order, init commands — live here;
   the board's — the reset line, the data/command line, the clock — do not.
+- **`ili9342`** — the SPI **display controller** the CoreS3 carries, and the same shape as `st7789`:
+  the panel's facts — size, the frame it is left in, the init tables, `flush()` — live here, the
+  board's do not. Two things are its own. It is told which **revision** it drives — the same glass
+  ships with an ILI9342C or an ILI9342E, and the two want different power-on tables, so guessing is not
+  an option — and its panel needs **timing** as well as bytes: an interval after sleep-out and another
+  after display-on. That is why its seam is three calls where `st7789`'s is two: `bus_delay_ms` is the
+  panel's fact too, and the fake records it so a case can prove the wait happened.
 - **`ft6336`** — an I²C **touch controller** driver (a capacitive panel): presence, and the point being
   touched. Read with `bus_write_read`, like any register.
 - **`lvgl_display`** — the LVGL **surface** for a panel driver: one `lv_display`, the draw buffer LVGL
