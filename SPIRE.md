@@ -99,6 +99,10 @@
   write form and its fake can refuse one. `now()` reads **false** when the part's voltage-low flag is
   set, which is the part saying its count is wrong: a time that cannot be trusted is not a time, and it
   is the caller's cue to set the clock from a source it does trust.
+- **`axp2101`** — an I²C **power-management IC** driver (a battery board's PMIC): the part's identity,
+  whether a battery is connected, whether it is charging, the battery voltage in millivolts, and the
+  part's own gauge. It **reads and does not configure** — the power tree a board brings up is that
+  board's, and a driver that rearranged it would be one no board could adopt.
 - **`bmi270`** — an I²C **inertial measurement unit** driver (a six-axis accelerometer and gyroscope,
   and the part's own die temperature): presence by its chip ID, and one `read` of all six axes in the
   units the datasheet's conversions give. It **reads and does not configure**, like the PMIC beside it —
