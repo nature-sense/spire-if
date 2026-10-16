@@ -5,14 +5,19 @@
 
 // The **fake bus** sps30's host test runs against.
 //
-// Same three functions as the real `sps30_bus.hpp` — that is the whole contract, and the reason
-// the protocol above them is the same code the firmware runs. Behind them:
+// Same functions as the real `sps30_bus.hpp` — that is the whole contract, and the reason the protocol
+// above them is the same code the firmware runs. Behind them:
 //
-//   * a **script**: the frames "the device" answers with, in order. A capture off a real device, or
-//     one written from its datasheet; either way it is *bytes*, not a behaviour, which is why the
-//     test proves the protocol and not the fixture;
+//   * a **script**: the frames "the device" answers with, in order. A capture off a real device, or one
+//     written from its datasheet; either way it is *bytes*, not a behaviour, which is why the test
+//     proves the protocol and not the fixture;
 //   * a **recording**: every byte the protocol wrote, so a test can assert the exact command rather
-//     than only the value that came back. Half of a protocol's bugs are in what it sent.
+//     than only the value that came back. Half of a protocol's bugs are in what it sent;
+//   * a **recording of the waits**, because this device's measurement loop has timing. A driver that
+//     dropped its start-up interval would be one that comes up on a warm bench and not on a cold one,
+//     and no assertion about the bytes sent could see the difference;
+//   * a **refusal switch**, for the case the device is not there: `fake_refuse()` makes every transfer
+//     fail, which is the only failure a command that carries no reply can be told about.
 //
 // Globals, because the component's bus interface is free functions. That is the price of a seam this
 // thin — and it is why this file lives under `test/`: it is never linked into firmware.
@@ -45,10 +50,24 @@ inline std::vector<uint8_t>& fake_written() {
     return written;
 }
 
-/// Forget the last test's traffic and point the fake at a device that answers nothing.
+/// Every wait, in milliseconds, in the order the protocol asked for it.
+inline std::vector<std::uint32_t>& fake_delays() {
+    static std::vector<std::uint32_t> delays;
+    return delays;
+}
+
+/// Whether the bus is refusing everything — a device that is not fitted, or not wired.
+inline bool& fake_refusing() {
+    static bool refusing = false;
+    return refusing;
+}
+
+/// Forget the last test's traffic, and let the bus answer again.
 inline void fake_reset() {
     fake_script().clear();
     fake_written().clear();
+    fake_delays().clear();
+    fake_refusing() = false;
 }
 
 /// Queue one answer. Call once per read the protocol is expected to make.
@@ -56,13 +75,22 @@ inline void fake_answer(std::initializer_list<uint8_t> bytes) {
     fake_script().push_back(FakeFrame(bytes));
 }
 
+/// Make every transfer fail, the way a bus with no device on it does.
+inline void fake_refuse() { fake_refusing() = true; }
+
 /// The handle is a token here: nothing below dereferences it.
 inline bool bus_write(BusHandle, const uint8_t* out, std::size_t out_len) {
+    if (fake_refusing()) {
+        return false;
+    }
     fake_written().insert(fake_written().end(), out, out + out_len);
     return true;
 }
 
 inline bool bus_read(BusHandle, uint8_t* in, std::size_t in_len) {
+    if (fake_refusing()) {
+        return false;
+    }
     if (fake_script().empty()) {
         // A device that does not answer. Not an error, and not a crash: the case a protocol has to
         // handle by returning false rather than by reading whatever was in the buffer.
@@ -84,5 +112,9 @@ inline bool bus_write_read(BusHandle device, const uint8_t* out, std::size_t out
     // scripts no frame.
     return bus_write(device, out, out_len) && bus_read(device, in, in_len);
 }
+
+/// Record the wait rather than performing it: what a test needs to know is that it was asked for, at
+/// that point in the sequence, and how long for.
+inline void bus_delay_ms(std::uint32_t ms) { fake_delays().push_back(ms); }
 
 }  // namespace sps30
