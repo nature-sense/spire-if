@@ -22,6 +22,7 @@ components/           the product: the framework, and everything added to it
                       registry (`*scheduler.registry()`) for a peer you were not handed a ref to
                       — and a host test that runs it, on real threads, against a fake FreeRTOS
 SPIRE.md              HOW THIS LIBRARY IS MEANT TO BE USED — the architecture lives here
+API.md                the function reference: every public type and function, component by component
 ```
 
 ## The framework is here; using it is optional
