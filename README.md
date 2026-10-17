@@ -59,9 +59,15 @@ resolved when CMake configures, so `idf.py build` on its own reports success —
 compiled it*. The build that adds a component is a re-configure:
 
 ```sh
-idf.py reconfigure                   # re-resolve components/ — a new one is invisible until this
-idf.py set-target esp32s3 build      # compile-checks every component
+tools/idf.sh reconfigure                # re-resolve components/ — a new one is invisible until this
+tools/idf.sh set-target esp32s3 build   # compile-checks every component
 ```
+
+ESP-IDF **v5.5.5** is installed at `~/.espressif/esp-idf/v5.5.5`, and no shell rc sources its
+`export.sh` — so `idf.py` is not on `PATH` until something does. `tools/idf.sh` is that something:
+it sources `export.sh` and then runs `idf.py` with the arguments it was given, so it works in a
+non-login shell (a build run by a tool or a CI step) as well as in a terminal. In a shell you have
+already activated with `. ~/.espressif/esp-idf/v5.5.5/export.sh`, `idf.py` works directly.
 
 ## What does not go here
 
